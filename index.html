@@ -1,0 +1,1910 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyHub - Gestión de Estudios</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #151937;
+            --bg-card: #1a1f3a;
+            --accent-primary: #00d9ff;
+            --accent-secondary: #7b2ff7;
+            --accent-tertiary: #ff006e;
+            --text-primary: #e8ecf7;
+            --text-secondary: #a0a8c1;
+            --border: #2a3158;
+            --success: #00ff88;
+            --warning: #ffbe0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(123, 47, 247, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 217, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(255, 0, 110, 0.08) 0%, transparent 50%);
+            animation: moveGradient 20s ease infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes moveGradient {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(5%, 5%) rotate(120deg); }
+            66% { transform: translate(-5%, 5%) rotate(240deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 3rem;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .user-selection {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .user-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.3);
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-stats {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border);
+            animation: fadeInDown 0.6s ease;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-sub {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-badge {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--accent-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .user-badge:hover {
+            background: var(--accent-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 217, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-btn:hover::before {
+            left: 100%;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.3);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-color: transparent;
+            font-weight: 600;
+        }
+
+        .view {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, var(--accent-primary) 0%, transparent 70%);
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.2);
+            border-color: var(--accent-primary);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 217, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-primary);
+            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent-tertiary), #c20049);
+            box-shadow: 0 4px 15px rgba(255, 0, 110, 0.3);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        input, textarea, select {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+        }
+
+        .card-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .card:hover {
+            border-color: var(--accent-primary);
+            transform: translateX(5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .progress-bar {
+            background: var(--bg-primary);
+            height: 8px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--success));
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px var(--accent-primary);
+        }
+
+        .exam-date {
+            display: inline-block;
+            background: var(--bg-primary);
+            color: var(--accent-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .urgency-high {
+            border-left: 4px solid var(--accent-tertiary);
+        }
+
+        .urgency-medium {
+            border-left: 4px solid var(--warning);
+        }
+
+        .urgency-low {
+            border-left: 4px solid var(--success);
+        }
+
+        .topic-list {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .topic-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .topic-item:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .topic-item.completed {
+            opacity: 0.6;
+            border-color: var(--success);
+        }
+
+        .topic-name {
+            font-weight: 500;
+        }
+
+        .topic-status {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: var(--accent-primary);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 14, 39, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.selected {
+            border-color: var(--text-primary);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Calendar Styles */
+        .calendar-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .calendar-month {
+            font-size: 1.5rem;
+            font-weight: 600;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            padding: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .calendar-day:hover {
+            border-color: var(--accent-primary);
+            transform: scale(1.05);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--accent-primary);
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
+        }
+
+        .calendar-day.has-exam {
+            background: linear-gradient(135deg, rgba(255, 0, 110, 0.2), rgba(123, 47, 247, 0.2));
+            border-color: var(--accent-tertiary);
+        }
+
+        .calendar-day-number {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .calendar-events {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-top: auto;
+        }
+
+        .calendar-event-dot {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        /* Plan de Estudio */
+        .year-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .year-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .year-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .year-stats {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .materias-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .materia-plan-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .materia-plan-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-3px);
+        }
+
+        .materia-plan-card.aprobada {
+            border-left: 4px solid var(--success);
+        }
+
+        .materia-plan-card.cursando {
+            border-left: 4px solid var(--accent-primary);
+        }
+
+        .materia-plan-card.pendiente {
+            border-left: 4px solid var(--text-secondary);
+        }
+
+        .materia-plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+
+        .materia-plan-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .nota-badge {
+            background: var(--success);
+            color: var(--bg-primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .nota-badge.alta {
+            background: var(--success);
+        }
+
+        .nota-badge.media {
+            background: var(--warning);
+        }
+
+        .nota-badge.baja {
+            background: var(--accent-tertiary);
+        }
+
+        .estado-select {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .summary-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            font-family: 'Space Mono', monospace;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            nav {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .nav-btn, .user-badge {
+                flex: 1;
+                min-width: 100px;
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-grid {
+                gap: 0.25rem;
+            }
+
+            .calendar-day {
+                padding: 0.25rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1 class="login-title">StudyHub</h1>
+                <p class="login-subtitle">Selecciona tu usuario</p>
+            </div>
+            <div class="user-selection" id="userSelection"></div>
+            <button class="btn" style="width: 100%;" onclick="showNewUserForm()">+ Crear Nuevo Usuario</button>
+            
+            <div id="newUserForm" class="hidden" style="margin-top: 1.5rem;">
+                <div class="form-group">
+                    <label>Nombre de Usuario</label>
+                    <input type="text" id="newUserName" placeholder="Ingresa tu nombre">
+                </div>
+                <button class="btn" style="width: 100%; margin-top: 1rem;" onclick="createUser()">Crear Usuario</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="mainApp" class="hidden">
+        <div class="container">
+            <header>
+                <div>
+                    <h1>StudyHub</h1>
+                    <div class="logo-sub">/ Organiza tus estudios</div>
+                </div>
+                <nav>
+                    <span class="user-badge" onclick="logout()" id="currentUserBadge" title="Clic para cerrar sesión"></span>
+                    <button class="nav-btn active" onclick="switchView('dashboard')">Dashboard</button>
+                    <button class="nav-btn" onclick="switchView('calendario')">Calendario</button>
+                    <button class="nav-btn" onclick="switchView('materias')">Materias</button>
+                    <button class="nav-btn" onclick="switchView('examenes')">Exámenes</button>
+                    <button class="nav-btn" onclick="switchView('plan')">Plan de Estudio</button>
+                </nav>
+            </header>
+
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="view active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Materias</div>
+                        <div class="stat-value" id="totalMaterias">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Próximos Exámenes</div>
+                        <div class="stat-value" id="proximosExamenes">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Temas Completados</div>
+                        <div class="stat-value" id="temasCompletados">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Progreso Total</div>
+                        <div class="stat-value" id="progresoTotal">0%</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Próximos Exámenes</h2>
+                    </div>
+                    <div id="proximosExamenesList" class="card-list"></div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Materias en Curso</h2>
+                    </div>
+                    <div id="materiasEnCurso" class="card-list"></div>
+                </div>
+            </div>
+
+            <!-- CALENDARIO -->
+            <div id="calendario" class="view">
+                <div class="section">
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <button class="btn btn-secondary btn-small" onclick="prevMonth()">◄</button>
+                            <div class="calendar-nav">
+                                <h2 class="calendar-month" id="calendarMonth"></h2>
+                            </div>
+                            <button class="btn btn-secondary btn-small" onclick="nextMonth()">►</button>
+                        </div>
+                        <div class="calendar-grid" id="calendarGrid"></div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Exámenes del Mes</h2>
+                    </div>
+                    <div id="examenesDelMes" class="card-list"></div>
+                </div>
+            </div>
+
+            <!-- MATERIAS -->
+            <div id="materias" class="view">
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Mis Materias</h2>
+                        <button class="btn" onclick="openModal('materiaModal')">+ Nueva Materia</button>
+                    </div>
+                    <div id="materiasList" class="card-list"></div>
+                </div>
+            </div>
+
+            <!-- EXÁMENES -->
+            <div id="examenes" class="view">
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Calendario de Exámenes</h2>
+                        <button class="btn" onclick="openModal('examenModal')">+ Nuevo Examen</button>
+                    </div>
+                    <div id="examenesList" class="card-list"></div>
+                </div>
+            </div>
+
+            <!-- PLAN DE ESTUDIO -->
+            <div id="plan" class="view">
+                <div class="section">
+                    <div class="section-header">
+                        <h2 class="section-title">Plan de Estudio</h2>
+                        <button class="btn" onclick="openModal('planModal')">+ Agregar Materia al Plan</button>
+                    </div>
+
+                    <div class="summary-cards" id="planSummary"></div>
+                    
+                    <div id="planContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MATERIA -->
+    <div id="materiaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nueva Materia</h3>
+                <button class="close-btn" onclick="closeModal('materiaModal')">×</button>
+            </div>
+            <form id="materiaForm" class="form-grid">
+                <div class="form-group">
+                    <label>Nombre de la Materia</label>
+                    <input type="text" id="materiaNombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Profesor</label>
+                    <input type="text" id="materiaProfesor">
+                </div>
+                <div class="form-group">
+                    <label>Color</label>
+                    <div class="color-picker" id="colorPicker"></div>
+                </div>
+                <div class="form-group">
+                    <label>Temas a Estudiar (uno por línea)</label>
+                    <textarea id="materiaTopics" rows="8" placeholder="Tema 1&#10;Tema 2&#10;Tema 3"></textarea>
+                </div>
+                <button type="submit" class="btn">Guardar Materia</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL EXAMEN -->
+    <div id="examenModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nuevo Examen</h3>
+                <button class="close-btn" onclick="closeModal('examenModal')">×</button>
+            </div>
+            <form id="examenForm" class="form-grid">
+                <div class="form-group">
+                    <label>Materia</label>
+                    <select id="examenMateria" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Fecha del Examen</label>
+                    <input type="date" id="examenFecha" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Examen</label>
+                    <select id="examenTipo">
+                        <option value="Parcial">Parcial</option>
+                        <option value="Final">Final</option>
+                        <option value="Recuperatorio">Recuperatorio</option>
+                        <option value="Integrador">Integrador</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notas Adicionales</label>
+                    <textarea id="examenNotas" rows="4"></textarea>
+                </div>
+                <button type="submit" class="btn">Guardar Examen</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL TEMAS -->
+    <div id="temasModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="temasModalTitle">Temas</h3>
+                <button class="close-btn" onclick="closeModal('temasModal')">×</button>
+            </div>
+            <div id="temasContent"></div>
+        </div>
+    </div>
+
+    <!-- MODAL PLAN DE ESTUDIO -->
+    <div id="planModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Agregar Materia al Plan</h3>
+                <button class="close-btn" onclick="closeModal('planModal')">×</button>
+            </div>
+            <form id="planForm" class="form-grid">
+                <div class="form-group">
+                    <label>Año</label>
+                    <select id="planAnio" required>
+                        <option value="1">Primer Año</option>
+                        <option value="2">Segundo Año</option>
+                        <option value="3">Tercer Año</option>
+                        <option value="4">Cuarto Año</option>
+                        <option value="5">Quinto Año</option>
+                        <option value="6">Sexto Año</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nombre de la Materia</label>
+                    <input type="text" id="planMateria" required>
+                </div>
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select id="planEstado" onchange="toggleNotaInput()">
+                        <option value="pendiente">Pendiente</option>
+                        <option value="cursando">Cursando</option>
+                        <option value="aprobada">Aprobada</option>
+                    </select>
+                </div>
+                <div class="form-group hidden" id="notaGroup">
+                    <label>Nota (1-10)</label>
+                    <input type="number" id="planNota" min="1" max="10" step="0.1">
+                </div>
+                <button type="submit" class="btn">Agregar al Plan</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Colores disponibles para las materias
+        const colors = [
+            '#00d9ff', '#7b2ff7', '#ff006e', '#00ff88', '#ffbe0b',
+            '#ff5733', '#33ff57', '#3357ff', '#ff33f5', '#f5ff33'
+        ];
+
+        // Estado de la aplicación
+        let users = [];
+        let currentUser = null;
+        let materias = [];
+        let examenes = [];
+        let planEstudio = [];
+        let selectedColor = colors[0];
+        let currentDate = new Date();
+
+        // Inicializar la aplicación
+        async function init() {
+            await loadUsers();
+            renderUserSelection();
+        }
+
+        // GESTIÓN DE USUARIOS
+        async function loadUsers() {
+            try {
+                const usersData = await window.storage.get('users');
+                users = usersData ? JSON.parse(usersData.value) : [];
+            } catch (error) {
+                console.log('Iniciando con usuarios vacíos');
+                users = [];
+            }
+        }
+
+        async function saveUsers() {
+            try {
+                await window.storage.set('users', JSON.stringify(users));
+            } catch (error) {
+                console.error('Error al guardar usuarios:', error);
+            }
+        }
+
+        function renderUserSelection() {
+            const container = document.getElementById('userSelection');
+            if (users.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No hay usuarios. Crea uno para comenzar.</p></div>';
+            } else {
+                container.innerHTML = users.map(user => {
+                    const initials = user.name.substring(0, 2).toUpperCase();
+                    return `
+                        <div class="user-card" onclick="selectUser('${user.id}')">
+                            <div class="user-avatar">${initials}</div>
+                            <div class="user-info">
+                                <div class="user-name">${user.name}</div>
+                                <div class="user-stats">${user.materias || 0} materias • ${user.examenes || 0} exámenes</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function showNewUserForm() {
+            document.getElementById('newUserForm').classList.toggle('hidden');
+        }
+
+        async function createUser() {
+            const name = document.getElementById('newUserName').value.trim();
+            if (!name) return alert('Ingresa un nombre');
+
+            const user = {
+                id: Date.now().toString(),
+                name: name,
+                materias: 0,
+                examenes: 0
+            };
+
+            users.push(user);
+            await saveUsers();
+            
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserForm').classList.add('hidden');
+            renderUserSelection();
+        }
+
+        async function selectUser(userId) {
+            currentUser = users.find(u => u.id === userId);
+            await loadUserData();
+            
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('currentUserBadge').textContent = currentUser.name;
+            
+            renderColorPicker();
+            updateDashboard();
+            renderMaterias();
+            renderExamenes();
+            updateExamenSelect();
+            renderCalendar();
+            renderPlan();
+        }
+
+        function logout() {
+            if (confirm('¿Cerrar sesión?')) {
+                currentUser = null;
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('mainApp').classList.add('hidden');
+                switchView('dashboard');
+            }
+        }
+
+        // Cargar datos del usuario actual
+        async function loadUserData() {
+            try {
+                const materiasData = await window.storage.get(`materias_${currentUser.id}`);
+                const examenesData = await window.storage.get(`examenes_${currentUser.id}`);
+                const planData = await window.storage.get(`plan_${currentUser.id}`);
+                
+                materias = materiasData ? JSON.parse(materiasData.value) : [];
+                examenes = examenesData ? JSON.parse(examenesData.value) : [];
+                planEstudio = planData ? JSON.parse(planData.value) : [];
+            } catch (error) {
+                console.log('Iniciando con datos vacíos para el usuario');
+                materias = [];
+                examenes = [];
+                planEstudio = [];
+            }
+        }
+
+        // Guardar datos del usuario actual
+        async function saveData() {
+            try {
+                await window.storage.set(`materias_${currentUser.id}`, JSON.stringify(materias));
+                await window.storage.set(`examenes_${currentUser.id}`, JSON.stringify(examenes));
+                await window.storage.set(`plan_${currentUser.id}`, JSON.stringify(planEstudio));
+                
+                // Actualizar estadísticas del usuario
+                const user = users.find(u => u.id === currentUser.id);
+                if (user) {
+                    user.materias = materias.length;
+                    user.examenes = examenes.length;
+                    await saveUsers();
+                }
+            } catch (error) {
+                console.error('Error al guardar:', error);
+            }
+        }
+
+        // Cambiar vista
+        function switchView(viewName) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(viewName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (viewName === 'calendario') {
+                renderCalendar();
+            } else if (viewName === 'plan') {
+                renderPlan();
+            }
+        }
+
+        // Modales
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Renderizar selector de colores
+        function renderColorPicker() {
+            const picker = document.getElementById('colorPicker');
+            picker.innerHTML = colors.map(color => 
+                `<div class="color-option ${color === selectedColor ? 'selected' : ''}" 
+                      style="background: ${color}" 
+                      onclick="selectColor('${color}')"></div>`
+            ).join('');
+        }
+
+        function selectColor(color) {
+            selectedColor = color;
+            renderColorPicker();
+        }
+
+        // MATERIA FORM
+        document.getElementById('materiaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const materia = {
+                id: Date.now(),
+                nombre: document.getElementById('materiaNombre').value,
+                profesor: document.getElementById('materiaProfesor').value,
+                color: selectedColor,
+                temas: document.getElementById('materiaTopics').value
+                    .split('\n')
+                    .filter(t => t.trim())
+                    .map(t => ({ nombre: t.trim(), completado: false }))
+            };
+
+            materias.push(materia);
+            await saveData();
+            
+            closeModal('materiaModal');
+            document.getElementById('materiaForm').reset();
+            selectedColor = colors[0];
+            
+            updateDashboard();
+            renderMaterias();
+            updateExamenSelect();
+        });
+
+        // EXAMEN FORM
+        document.getElementById('examenForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const examen = {
+                id: Date.now(),
+                materiaId: parseInt(document.getElementById('examenMateria').value),
+                fecha: document.getElementById('examenFecha').value,
+                tipo: document.getElementById('examenTipo').value,
+                notas: document.getElementById('examenNotas').value
+            };
+
+            examenes.push(examen);
+            await saveData();
+            
+            closeModal('examenModal');
+            document.getElementById('examenForm').reset();
+            
+            updateDashboard();
+            renderExamenes();
+            renderCalendar();
+        });
+
+        // PLAN FORM
+        document.getElementById('planForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const estado = document.getElementById('planEstado').value;
+            const materia = {
+                id: Date.now(),
+                anio: parseInt(document.getElementById('planAnio').value),
+                nombre: document.getElementById('planMateria').value,
+                estado: estado,
+                nota: estado === 'aprobada' ? parseFloat(document.getElementById('planNota').value) : null
+            };
+
+            planEstudio.push(materia);
+            await saveData();
+            
+            closeModal('planModal');
+            document.getElementById('planForm').reset();
+            document.getElementById('notaGroup').classList.add('hidden');
+            
+            renderPlan();
+        });
+
+        function toggleNotaInput() {
+            const estado = document.getElementById('planEstado').value;
+            const notaGroup = document.getElementById('notaGroup');
+            if (estado === 'aprobada') {
+                notaGroup.classList.remove('hidden');
+                document.getElementById('planNota').required = true;
+            } else {
+                notaGroup.classList.add('hidden');
+                document.getElementById('planNota').required = false;
+            }
+        }
+
+        // Actualizar selector de materias en examen
+        function updateExamenSelect() {
+            const select = document.getElementById('examenMateria');
+            select.innerHTML = materias.length ? 
+                materias.map(m => `<option value="${m.id}">${m.nombre}</option>`).join('') :
+                '<option value="">Sin materias disponibles</option>';
+        }
+
+        // Calcular urgencia del examen
+        function getExamUrgency(fecha) {
+            const today = new Date();
+            const examDate = new Date(fecha);
+            const diffDays = Math.ceil((examDate - today) / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) return 'past';
+            if (diffDays <= 7) return 'high';
+            if (diffDays <= 14) return 'medium';
+            return 'low';
+        }
+
+        // Renderizar dashboard
+        function updateDashboard() {
+            document.getElementById('totalMaterias').textContent = materias.length;
+            
+            const proximosExams = examenes.filter(e => new Date(e.fecha) >= new Date()).length;
+            document.getElementById('proximosExamenes').textContent = proximosExams;
+            
+            const totalTemas = materias.reduce((acc, m) => acc + m.temas.length, 0);
+            const completados = materias.reduce((acc, m) => 
+                acc + m.temas.filter(t => t.completado).length, 0);
+            
+            document.getElementById('temasCompletados').textContent = `${completados}/${totalTemas}`;
+            
+            const progreso = totalTemas > 0 ? Math.round((completados / totalTemas) * 100) : 0;
+            document.getElementById('progresoTotal').textContent = `${progreso}%`;
+            
+            // Próximos exámenes
+            const proximosExamenes = examenes
+                .filter(e => new Date(e.fecha) >= new Date())
+                .sort((a, b) => new Date(a.fecha) - new Date(b.fecha))
+                .slice(0, 5);
+            
+            const examenesHTML = proximosExamenes.length ? 
+                proximosExamenes.map(e => {
+                    const materia = materias.find(m => m.id === e.materiaId);
+                    const urgency = getExamUrgency(e.fecha);
+                    return `
+                        <div class="card urgency-${urgency}">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title" style="color: ${materia?.color}">${materia?.nombre || 'Materia eliminada'}</div>
+                                    <div class="card-subtitle">${e.tipo}</div>
+                                </div>
+                                <span class="exam-date">${new Date(e.fecha).toLocaleDateString('es-AR')}</span>
+                            </div>
+                            ${e.notas ? `<p style="color: var(--text-secondary); margin-top: 0.5rem;">${e.notas}</p>` : ''}
+                        </div>
+                    `;
+                }).join('') :
+                '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No hay exámenes próximos</p></div>';
+            
+            document.getElementById('proximosExamenesList').innerHTML = examenesHTML;
+            
+            // Materias en curso
+            const materiasHTML = materias.length ?
+                materias.map(m => {
+                    const completados = m.temas.filter(t => t.completado).length;
+                    const total = m.temas.length;
+                    const progreso = total > 0 ? (completados / total) * 100 : 0;
+                    
+                    return `
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title" style="color: ${m.color}">${m.nombre}</div>
+                                    <div class="card-subtitle">${m.profesor || 'Sin profesor'} • ${completados}/${total} temas</div>
+                                </div>
+                                <button class="btn btn-small btn-secondary" onclick="viewTemas(${m.id})">Ver Temas</button>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progreso}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('') :
+                '<div class="empty-state"><div class="empty-state-icon">📚</div><p>No hay materias creadas</p></div>';
+            
+            document.getElementById('materiasEnCurso').innerHTML = materiasHTML;
+        }
+
+        // Renderizar materias
+        function renderMaterias() {
+            const materiasHTML = materias.length ?
+                materias.map(m => {
+                    const completados = m.temas.filter(t => t.completado).length;
+                    const total = m.temas.length;
+                    const progreso = total > 0 ? (completados / total) * 100 : 0;
+                    
+                    return `
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title" style="color: ${m.color}">${m.nombre}</div>
+                                    <div class="card-subtitle">${m.profesor || 'Sin profesor'} • ${total} temas</div>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="btn btn-small btn-secondary" onclick="viewTemas(${m.id})">Ver Temas</button>
+                                    <button class="btn btn-small btn-danger" onclick="deleteMateria(${m.id})">Eliminar</button>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progreso}%"></div>
+                            </div>
+                            <div style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+                                Progreso: ${completados}/${total} (${Math.round(progreso)}%)
+                            </div>
+                        </div>
+                    `;
+                }).join('') :
+                '<div class="empty-state"><div class="empty-state-icon">📚</div><p>No hay materias. Crea tu primera materia para comenzar.</p></div>';
+            
+            document.getElementById('materiasList').innerHTML = materiasHTML;
+        }
+
+        // Renderizar exámenes
+        function renderExamenes() {
+            const sortedExamenes = [...examenes].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+            
+            const examenesHTML = sortedExamenes.length ?
+                sortedExamenes.map(e => {
+                    const materia = materias.find(m => m.id === e.materiaId);
+                    const urgency = getExamUrgency(e.fecha);
+                    const isPast = urgency === 'past';
+                    
+                    return `
+                        <div class="card ${isPast ? '' : 'urgency-' + urgency}" style="${isPast ? 'opacity: 0.5;' : ''}">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title" style="color: ${materia?.color}">${materia?.nombre || 'Materia eliminada'}</div>
+                                    <div class="card-subtitle">${e.tipo}</div>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <span class="exam-date">${new Date(e.fecha).toLocaleDateString('es-AR')}</span>
+                                    <button class="btn btn-small btn-danger" onclick="deleteExamen(${e.id})">×</button>
+                                </div>
+                            </div>
+                            ${e.notas ? `<p style="color: var(--text-secondary); margin-top: 0.5rem;">${e.notas}</p>` : ''}
+                            ${isPast ? '<div style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.85rem;">Examen pasado</div>' : ''}
+                        </div>
+                    `;
+                }).join('') :
+                '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No hay exámenes programados. Agrega tu primer examen.</p></div>';
+            
+            document.getElementById('examenesList').innerHTML = examenesHTML;
+        }
+
+        // Ver temas de una materia
+        function viewTemas(materiaId) {
+            const materia = materias.find(m => m.id === materiaId);
+            if (!materia) return;
+            
+            document.getElementById('temasModalTitle').textContent = `Temas - ${materia.nombre}`;
+            
+            const temasHTML = materia.temas.length ?
+                `<div class="topic-list">
+                    ${materia.temas.map((tema, index) => `
+                        <div class="topic-item ${tema.completado ? 'completed' : ''}">
+                            <span class="topic-name">${tema.nombre}</span>
+                            <div class="topic-status">
+                                <input type="checkbox" 
+                                       class="checkbox" 
+                                       ${tema.completado ? 'checked' : ''}
+                                       onchange="toggleTema(${materiaId}, ${index})">
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>` :
+                '<div class="empty-state"><p>No hay temas definidos para esta materia</p></div>';
+            
+            document.getElementById('temasContent').innerHTML = temasHTML;
+            openModal('temasModal');
+        }
+
+        // Toggle tema completado
+        async function toggleTema(materiaId, temaIndex) {
+            const materia = materias.find(m => m.id === materiaId);
+            if (!materia) return;
+            
+            materia.temas[temaIndex].completado = !materia.temas[temaIndex].completado;
+            await saveData();
+            
+            updateDashboard();
+            renderMaterias();
+            viewTemas(materiaId);
+        }
+
+        // Eliminar materia
+        async function deleteMateria(materiaId) {
+            if (!confirm('¿Estás seguro de eliminar esta materia?')) return;
+            
+            materias = materias.filter(m => m.id !== materiaId);
+            await saveData();
+            
+            updateDashboard();
+            renderMaterias();
+            updateExamenSelect();
+        }
+
+        // Eliminar examen
+        async function deleteExamen(examenId) {
+            if (!confirm('¿Estás seguro de eliminar este examen?')) return;
+            
+            examenes = examenes.filter(e => e.id !== examenId);
+            await saveData();
+            
+            updateDashboard();
+            renderExamenes();
+            renderCalendar();
+        }
+
+        // CALENDARIO
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                              'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+            
+            document.getElementById('calendarMonth').textContent = `${monthNames[month]} ${year}`;
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+            
+            const dayHeaders = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            let calendarHTML = dayHeaders.map(day => 
+                `<div class="calendar-day-header">${day}</div>`
+            ).join('');
+            
+            // Días del mes anterior
+            for (let i = firstDay - 1; i >= 0; i--) {
+                calendarHTML += `<div class="calendar-day other-month">
+                    <div class="calendar-day-number">${daysInPrevMonth - i}</div>
+                </div>`;
+            }
+            
+            // Días del mes actual
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+                const examsOnDay = examenes.filter(e => e.fecha === dateStr);
+                
+                calendarHTML += `<div class="calendar-day ${isToday ? 'today' : ''} ${examsOnDay.length ? 'has-exam' : ''}">
+                    <div class="calendar-day-number">${day}</div>
+                    ${examsOnDay.length ? `<div class="calendar-events">
+                        ${examsOnDay.map(e => {
+                            const materia = materias.find(m => m.id === e.materiaId);
+                            return `<div class="calendar-event-dot" style="background: ${materia?.color || '#00d9ff'}"></div>`;
+                        }).join('')}
+                    </div>` : ''}
+                </div>`;
+            }
+            
+            // Días del mes siguiente
+            const remainingDays = 42 - (firstDay + daysInMonth);
+            for (let day = 1; day <= remainingDays; day++) {
+                calendarHTML += `<div class="calendar-day other-month">
+                    <div class="calendar-day-number">${day}</div>
+                </div>`;
+            }
+            
+            document.getElementById('calendarGrid').innerHTML = calendarHTML;
+            
+            // Exámenes del mes
+            const examenesDelMes = examenes.filter(e => {
+                const examDate = new Date(e.fecha);
+                return examDate.getMonth() === month && examDate.getFullYear() === year;
+            }).sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+            
+            const examenesHTML = examenesDelMes.length ?
+                examenesDelMes.map(e => {
+                    const materia = materias.find(m => m.id === e.materiaId);
+                    const urgency = getExamUrgency(e.fecha);
+                    return `
+                        <div class="card urgency-${urgency}">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title" style="color: ${materia?.color}">${materia?.nombre || 'Materia eliminada'}</div>
+                                    <div class="card-subtitle">${e.tipo}</div>
+                                </div>
+                                <span class="exam-date">${new Date(e.fecha).toLocaleDateString('es-AR')}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('') :
+                '<div class="empty-state"><p>No hay exámenes este mes</p></div>';
+            
+            document.getElementById('examenesDelMes').innerHTML = examenesHTML;
+        }
+
+        function prevMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        }
+
+        // PLAN DE ESTUDIO
+        function renderPlan() {
+            const aprobadas = planEstudio.filter(m => m.estado === 'aprobada').length;
+            const cursando = planEstudio.filter(m => m.estado === 'cursando').length;
+            const pendientes = planEstudio.filter(m => m.estado === 'pendiente').length;
+            const total = planEstudio.length;
+            
+            const promedio = planEstudio
+                .filter(m => m.nota !== null)
+                .reduce((acc, m, i, arr) => acc + m.nota / arr.length, 0);
+            
+            document.getElementById('planSummary').innerHTML = `
+                <div class="summary-card">
+                    <div class="summary-number" style="color: var(--success)">${aprobadas}</div>
+                    <div class="summary-label">Aprobadas</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-number" style="color: var(--accent-primary)">${cursando}</div>
+                    <div class="summary-label">Cursando</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-number" style="color: var(--text-secondary)">${pendientes}</div>
+                    <div class="summary-label">Pendientes</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-number" style="color: var(--warning)">${total}</div>
+                    <div class="summary-label">Total</div>
+                </div>
+                ${promedio > 0 ? `
+                <div class="summary-card">
+                    <div class="summary-number" style="color: var(--accent-primary)">${promedio.toFixed(2)}</div>
+                    <div class="summary-label">Promedio</div>
+                </div>
+                ` : ''}
+            `;
+            
+            const aniosAgrupados = {};
+            planEstudio.forEach(m => {
+                if (!aniosAgrupados[m.anio]) {
+                    aniosAgrupados[m.anio] = [];
+                }
+                aniosAgrupados[m.anio].push(m);
+            });
+            
+            const planHTML = Object.keys(aniosAgrupados).length ?
+                Object.keys(aniosAgrupados).sort().map(anio => {
+                    const materiasAnio = aniosAgrupados[anio];
+                    const aprobadas = materiasAnio.filter(m => m.estado === 'aprobada').length;
+                    const total = materiasAnio.length;
+                    
+                    return `
+                        <div class="year-section">
+                            <div class="year-header">
+                                <h3 class="year-title">Año ${anio}</h3>
+                                <div class="year-stats">
+                                    <span>${aprobadas}/${total} Aprobadas</span>
+                                    <span>•</span>
+                                    <span>${total - aprobadas} Pendientes</span>
+                                </div>
+                            </div>
+                            <div class="materias-grid">
+                                ${materiasAnio.map(m => {
+                                    let notaBadge = '';
+                                    if (m.nota !== null) {
+                                        const notaClass = m.nota >= 8 ? 'alta' : m.nota >= 6 ? 'media' : 'baja';
+                                        notaBadge = `<span class="nota-badge ${notaClass}">${m.nota}</span>`;
+                                    }
+                                    
+                                    return `
+                                        <div class="materia-plan-card ${m.estado}">
+                                            <div class="materia-plan-header">
+                                                <div class="materia-plan-name">${m.nombre}</div>
+                                                ${notaBadge}
+                                            </div>
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem;">
+                                                <select class="estado-select" onchange="updateEstadoMateria(${m.id}, this.value)">
+                                                    <option value="pendiente" ${m.estado === 'pendiente' ? 'selected' : ''}>Pendiente</option>
+                                                    <option value="cursando" ${m.estado === 'cursando' ? 'selected' : ''}>Cursando</option>
+                                                    <option value="aprobada" ${m.estado === 'aprobada' ? 'selected' : ''}>Aprobada</option>
+                                                </select>
+                                                <button class="btn btn-small btn-danger" onclick="deletePlanMateria(${m.id})">×</button>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('') :
+                '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No hay materias en el plan. Agrega materias para comenzar.</p></div>';
+            
+            document.getElementById('planContent').innerHTML = planHTML;
+        }
+
+        async function updateEstadoMateria(materiaId, nuevoEstado) {
+            const materia = planEstudio.find(m => m.id === materiaId);
+            if (!materia) return;
+            
+            materia.estado = nuevoEstado;
+            
+            if (nuevoEstado === 'aprobada' && materia.nota === null) {
+                const nota = prompt('Ingresa la nota (1-10):');
+                if (nota !== null && !isNaN(nota) && nota >= 1 && nota <= 10) {
+                    materia.nota = parseFloat(nota);
+                }
+            } else if (nuevoEstado !== 'aprobada') {
+                materia.nota = null;
+            }
+            
+            await saveData();
+            renderPlan();
+        }
+
+        async function deletePlanMateria(materiaId) {
+            if (!confirm('¿Eliminar esta materia del plan?')) return;
+            
+            planEstudio = planEstudio.filter(m => m.id !== materiaId);
+            await saveData();
+            renderPlan();
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+
+        // Iniciar aplicación
+        init();
+    </script>
+</body>
+</html>
