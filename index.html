@@ -869,25 +869,26 @@
                 // Nota: En producción deberías usar Firebase Admin SDK desde el backend
                 // Esta es una solución simplificada
                 
-                // Guardar usuario actual
-                const tempUser = auth.currentUser;
-                
-                // Crear nuevo usuario
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const newUser = userCredential.user;
+            // Crear usuario en una instancia secundaria para NO cambiar la sesión del admin
+            const secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
+            const secondaryAuth = secondaryApp.auth();
+            
+            const userCredential = await secondaryAuth.createUserWithEmailAndPassword(email, password);
+            const newUser = userCredential.user;
+            
+            // Como seguís logueado como admin, esta escritura a Firestore se hace con permisos de admin
+            await db.collection('users').doc(newUser.uid).set({
+              name: name,
+              email: email,
+              role: role,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              createdBy: currentUser.uid
+            });
+            
+            // Limpieza: cerrás la auth secundaria y borrás la app secundaria
+            await secondaryAuth.signOut();
+            await secondaryApp.delete();
 
-                // Guardar datos en Firestore
-                await db.collection('users').doc(newUser.uid).set({
-                    name: name,
-                    email: email,
-                    role: role,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    createdBy: currentUser.uid
-                });
-
-                // Volver a iniciar sesión con usuario admin
-                await auth.signOut();
-                await auth.signInWithEmailAndPassword(currentUser.email, password);
 
                 showAlert('createUserAlert', 'success', `Usuario ${name} creado exitosamente`);
                 document.getElementById('createUserForm').reset();
