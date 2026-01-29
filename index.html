@@ -847,96 +847,86 @@
             }
         }
 
-        // Crear nuevo usuario
-        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            if (!currentUser || currentUser.role !== 'admin') {
-                showAlert('createUserAlert', 'error', 'No tienes permisos');
-                return;
-            }
+// Crear nuevo usuario
+document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-            const name = document.getElementById('newUserName').value;
-            const email = document.getElementById('newUserEmail').value;
-            const password = document.getElementById('newUserPassword').value;
-            const role = document.getElementById('newUserRole').value;
-            const btn = document.getElementById('createUserBtn');
+  if (!currentUser || currentUser.role !== 'admin') {
+    showAlert('createUserAlert', 'error', 'No tienes permisos');
+    return;
+  }
 
-            btn.disabled = true;
-            btn.textContent = 'Creando...';
+  const name = document.getElementById('newUserName').value.trim();
+  const email = document.getElementById('newUserEmail').value.trim();
+  const password = document.getElementById('newUserPassword').value;
+  const role = document.getElementById('newUserRole').value;
+  const btn = document.getElementById('createUserBtn');
 
-            try {
-                // Nota: En producción deberías usar Firebase Admin SDK desde el backend
-                // Esta es una solución simplificada
-                
-            // Crear usuario en una instancia secundaria para NO cambiar la sesión del admin
-            const secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
-            const secondaryAuth = secondaryApp.auth();
-            
-            const userCredential = await secondaryAuth.createUserWithEmailAndPassword(email, password);
-            const newUser = userCredential.user;
-            
-            // Como seguís logueado como admin, esta escritura a Firestore se hace con permisos de admin
-            await db.collection('users').doc(newUser.uid).set({
-              name: name,
-              email: email,
-              role: role,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-              createdBy: currentUser.uid
-            });
-            
-            // Limpieza: cerrás la auth secundaria y borrás la app secundaria
-            await secondaryAuth.signOut();
-            await secondaryApp.delete();
+  btn.disabled = true;
+  btn.textContent = 'Creando...';
 
+  // referencias para limpiar bien
+  let secondaryApp = null;
+  let secondaryAuth = null;
 
-                showAlert('createUserAlert', 'success', `Usuario ${name} creado exitosamente`);
-                document.getElementById('createUserForm').reset();
-                
-                setTimeout(() => {
-                    closeModal('createUserModal');
-                    loadUsers();
-                }, 2000);
+  try {
+    // 1) Crear usuario en instancia secundaria (NO cambia la sesión del admin)
+    const secondaryName = `Secondary-${Date.now()}`; // evita duplicate-app
+    secondaryApp = firebase.initializeApp(firebaseConfig, secondaryName);
+    secondaryAuth = secondaryApp.auth();
 
-            } catch (error) {
-                console.error('Error creando usuario:', error);
-                let message = 'Error creando usuario';
-                
-                if (error.code === 'auth/email-already-in-use') {
-                    message = 'El email ya está registrado';
-                } else if (error.code === 'auth/invalid-email') {
-                    message = 'Email inválido';
-                } else if (error.code === 'auth/weak-password') {
-                    message = 'La contraseña es muy débil';
-                }
-                
-                showAlert('createUserAlert', 'error', message);
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Crear Usuario';
-            }
-        });
+    const userCredential = await secondaryAuth.createUserWithEmailAndPassword(email, password);
+    const newUser = userCredential.user;
 
-        // Eliminar usuario
-        async function deleteUser(userId, userEmail) {
-            if (!currentUser || currentUser.role !== 'admin') return;
-            
-            if (!confirm(`¿Eliminar usuario ${userEmail}?`)) return;
+    // 2) Guardar datos en Firestore
+    // Esto puede fallar por reglas (permission-denied)
+    await db.collection('users').doc(newUser.uid).set({
+      name,
+      email,
+      role,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      createdBy: currentUser.uid
+    });
 
-            try {
-                // Eliminar de Firestore
-                await db.collection('users').doc(userId).delete();
-                
-                // Nota: Para eliminar de Firebase Auth necesitas usar Admin SDK desde backend
-                // Por ahora solo eliminamos de Firestore
-                
-                showAlert('createUserAlert', 'success', 'Usuario eliminado de la base de datos');
-                loadUsers();
-            } catch (error) {
-                console.error('Error eliminando usuario:', error);
-                showAlert('createUserAlert', 'error', 'Error eliminando usuario');
-            }
-        }
+    showAlert('createUserAlert', 'success', `Usuario ${name} creado exitosamente`);
+    document.getElementById('createUserForm').reset();
+
+    setTimeout(() => {
+      closeModal('createUserModal');
+      loadUsers();
+    }, 2000);
+
+  } catch (error) {
+    console.error('❌ Error creando usuario:', error);
+
+    // Mensaje más útil (NO ocultar el error real)
+    let message = `Error: ${error.code || 'sin-code'} - ${error.message || error}`;
+
+    // Mensajes amigables para Auth
+    if (error.code === 'auth/email-already-in-use') {
+      message = 'El email ya está registrado';
+    } else if (error.code === 'auth/invalid-email') {
+      message = 'Email inválido';
+    } else if (error.code === 'auth/weak-password') {
+      message = 'La contraseña es muy débil';
+    } else if (error.code === 'permission-denied') {
+      // Este es el caso típico: se crea en Auth pero falla Firestore
+      message = 'Se creó en Authentication, pero Firestore rechazó crear el perfil (permission-denied). Revisá las reglas de Firestore.';
+    } else if (error.code === 'app/duplicate-app') {
+      message = 'Error: ya existe una app secundaria. (Con este código no debería pasar; si pasa, hay otra inicialización duplicada).';
+    }
+
+    showAlert('createUserAlert', 'error', message);
+
+  } finally {
+    // 3) Limpieza segura de la app secundaria
+    try { if (secondaryAuth) await secondaryAuth.signOut(); } catch (_) {}
+    try { if (secondaryApp) await secondaryApp.delete(); } catch (_) {}
+
+    btn.disabled = false;
+    btn.textContent = 'Crear Usuario';
+  }
+});
 
         // ========================================
         // FUNCIONES AUXILIARES
